@@ -1,48 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartPath AI - Career Guidance</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartPath AI - Career Guidance</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="container">
-
-    <div class="card">
-        <h2>AI Career Guidance</h2>
-        <form id="careerForm">
-            <input type="text" name="interest" placeholder="Interest (IT, Science, Management)" required>
-            <input type="text" name="strength" placeholder="Strong Subject" required>
-            <input type="text" name="skill" placeholder="Skills" required>
-            <button type="submit">Generate AI Advice</button>
-        </form>
-
-        <div id="careerResult" class="card" style="margin-top:20px; display:none;"></div>
+  <div class="container">
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-badge"></div>
+        <div>
+          <div>SmartPath AI</div>
+          <div class="small">Career Guidance</div>
+        </div>
+      </div>
+      <div class="row">
+        <a class="pill" href="dashboard.html">← Dashboard</a>
+        <a class="pill" href="index.html">Home</a>
+      </div>
     </div>
 
-</div>
+    <div class="grid">
+      <div class="card span6">
+        <h2>AI Career Guidance</h2>
+        <p>Enter your interest, strong subject, and skills. You’ll get ranked career paths + a roadmap.</p>
+
+        <form id="careerForm">
+          <div class="field">
+            <label>Interest</label>
+            <input type="text" name="interest" placeholder="IT, Science, Management, Design..." required>
+          </div>
+
+          <div class="field">
+            <label>Strong Subject</label>
+            <input type="text" name="strength" placeholder="Math, Biology, Accounts, English..." required>
+          </div>
+
+          <div class="field">
+            <label>Skills (comma-separated)</label>
+            <input type="text" name="skill" placeholder="communication, coding, writing, teamwork..." required>
+          </div>
+
+          <div class="field">
+            <button class="btn" type="submit">Generate Smart Suggestions</button>
+          </div>
+
+          <div class="small">Tip: write multiple skills separated by commas.</div>
+        </form>
+      </div>
+
+      <div class="card span6">
+        <h2>How it works</h2>
+        <p>This version uses a scoring engine (rule-based AI). Later you can replace it with the OpenAI API.</p>
+        <div class="hr"></div>
+        <div class="kpi">
+          <div>
+            <div class="pill">✅ Ranked Results</div>
+            <p class="small">Top career paths based on scores.</p>
+          </div>
+          <div>
+            <div class="pill">🧭 Roadmap</div>
+            <p class="small">Next steps to start in that field.</p>
+          </div>
+          <div>
+            <div class="pill">📚 Skills Gap</div>
+            <p class="small">What to learn next based on your input.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="careerResult" class="card result"></div>
+    </div>
+  </div>
 
 <script>
-document.getElementById('careerForm').addEventListener('submit', function(e) {
+  const normalize = (s) => (s || "").trim().toLowerCase();
+  const splitSkills = (s) =>
+    normalize(s)
+      .split(",")
+      .map(x => x.trim())
+      .filter(Boolean);
+
+  // Small keyword helpers
+  const hasAny = (arr, keywords) => keywords.some(k => arr.includes(k));
+  const containsAny = (text, keywords) => keywords.some(k => text.includes(k));
+
+  function recommendCareers({interest, strength, skills}) {
+    const I = normalize(interest);
+    const S = normalize(strength);
+    const K = skills.map(normalize);
+
+    // Career library with scoring rules + roadmaps
+    const careers = [
+      {
+        key: "software",
+        title: "Software Developer",
+        tags: ["it", "coding", "apps", "web"],
+        base: 40,
+        rules: [
+          { when: () => containsAny(I, ["it","tech","computer","software","program"]), add: 35, why: "Strong match with your interest." },
+          { when: () => containsAny(S, ["math","computer","physics","logic"]), add: 20, why: "Your strong subject supports problem-solving." },
+          { when: () => hasAny(K, ["coding","programming","java","c","c++","javascript","python"]), add: 30, why: "You already have coding-related skills." },
+          { when: () => hasAny(K, ["problem solving","logic","debugging"]), add: 15, why: "Great engineering mindset." }
+        ],
+        roadmap: [
+          "Pick one track: Web (HTML/CSS/JS) or Backend (Java/Python) or Mobile.",
+          "Build 2 small projects (calculator, to-do app, portfolio site).",
+          "Learn Git + GitHub properly (push, pull, branches, PR).",
+          "Apply for internships + contribute to open-source."
+        ],
+        roles: ["Frontend Developer", "Backend Developer", "Full-stack Developer"]
+      },
+      {
+        key: "data",
+        title: "Data Analyst",
+        tags: ["data","it","analysis","stats"],
+        base: 35,
+        rules: [
+          { when: () => containsAny(I, ["it","data","analytics","ai","ml","statistics"]), add: 30, why: "Matches interest in analytics/IT." },
+          { when: () => containsAny(S, ["math","statistics","accounts","economics"]), add: 25, why: "Strong subject fits analytics work." },
+          { when: () => hasAny(K, ["excel","power bi","tableau","sql","python"]), add: 35, why: "You already listed useful analytics tools." },
+          { when: () => hasAny(K, ["critical thinking","communication","presentation"]), add: 15, why: "Analysts must explain insights clearly." }
+        ],
+        roadmap: [
+          "Learn Excel well (formulas, pivot tables) + basics of statistics.",
+          "Learn SQL (SELECT, JOIN, GROUP BY) + practice on datasets.",
+          "Build 1 dashboard project (Power BI/Tableau) + 1 SQL project.",
+          "Make a GitHub portfolio repo with your dashboards + reports."
+        ],
+        roles: ["Business/Data Analyst", "BI Analyst", "Reporting Analyst"]
+      },
+      {
+        key: "ai",
+        title: "AI / ML Engineer (Starter Path)",
+        tags: ["ai","ml","it"],
+        base: 25,
+        rules: [
+          { when: () => containsAny(I, ["ai","ml","machine learning","deep learning"]), add: 40, why: "Direct interest match." },
+          { when: () => containsAny(S, ["math","statistics","physics"]), add: 25, why: "Math/stats are core for ML." },
+          { when: () => hasAny(K, ["python","sql"]), add: 20, why: "Python + SQL are strong foundations." },
+          { when: () => hasAny(K, ["problem solving","logic"]), add: 10, why: "Helps with ML experimentation." }
+        ],
+        roadmap: [
+          "Learn Python fundamentals + NumPy/Pandas.",
+          "Learn core ML concepts (regression, classification).",
+          "Build 1 simple ML project (house price prediction / spam classifier).",
+          "Share results on GitHub with a clean README and screenshots."
+        ],
+        roles: ["ML Intern", "Junior ML Engineer", "AI Developer"]
+      },
+      {
+        key: "health",
+        title: "Health / Biomedical Path",
+        tags: ["science","biology","health"],
+        base: 30,
+        rules: [
+          { when: () => containsAny(I, ["science","medical","health","biology"]), add: 35, why: "Strong match with your interest." },
+          { when: () => containsAny(S, ["biology","chemistry","science"]), add: 30, why: "Your strong subject fits health science." },
+          { when: () => hasAny(K, ["research","lab","observation"]), add: 15, why: "Helpful skills for biomedical work." }
+        ],
+        roadmap: [
+          "Pick a target: medicine, lab tech, public health, research.",
+          "Strengthen Biology + Chemistry basics with consistent practice.",
+          "Do small research reading + summaries to build understanding.",
+          "Seek internships/volunteer opportunities in labs/hospitals (if available)."
+        ],
+        roles: ["Lab Technician", "Research Assistant", "Public Health Assistant"]
+      },
+      {
+        key: "business",
+        title: "Business Analyst",
+        tags: ["management","business","analysis"],
+        base: 35,
+        rules: [
+          { when: () => containsAny(I, ["management","business","commerce","entrepreneur"]), add: 35, why: "Matches your interest area." },
+          { when: () => containsAny(S, ["accounts","economics","math","management"]), add: 25, why: "Strong subject supports BA work." },
+          { when: () => hasAny(K, ["communication","presentation","excel","research"]), add: 25, why: "BA needs communication + tools." }
+        ],
+        roadmap: [
+          "Learn Excel + basic SQL (helps with reporting).",
+          "Practice requirement writing + problem statements.",
+          "Build 2 case studies (improve a process / analyze a small business).",
+          "Create a portfolio deck + GitHub repo for case studies."
+        ],
+        roles: ["Business Analyst", "Product Analyst", "Operations Analyst"]
+      },
+      {
+        key: "design",
+        title: "UI/UX Designer",
+        tags: ["design","creative","ui","ux"],
+        base: 25,
+        rules: [
+          { when: () => containsAny(I, ["design","ui","ux","creative"]), add: 45, why: "Direct match with design interest." },
+          { when: () => hasAny(K, ["figma","design","creativity","writing","communication"]), add: 30, why: "These skills support UX work." },
+          { when: () => containsAny(S, ["english","psychology"]), add: 15, why: "Great for user understanding and communication." }
+        ],
+        roadmap: [
+          "Learn Figma + basic UX principles (usability, hierarchy).",
+          "Redesign 2 real apps (case studies with before/after).",
+          "Create a portfolio (Behance / Notion / simple website).",
+          "Collaborate with a developer to ship one small project."
+        ],
+        roles: ["UI Designer", "UX Designer", "Product Designer (Junior)"]
+      }
+    ];
+
+    const scored = careers.map(c => {
+      let score = c.base;
+      const reasons = [];
+
+      for (const r of c.rules) {
+        if (r.when()) {
+          score += r.add;
+          reasons.push(`+${r.add}: ${r.why}`);
+        }
+      }
+
+      // Skill gap suggestion (simple heuristic)
+      const nextSkills = [];
+      if (c.key === "software") {
+        if (!hasAny(K, ["javascript"])) nextSkills.push("JavaScript");
+        if (!hasAny(K, ["git"])) nextSkills.push("Git/GitHub");
+        if (!hasAny(K, ["problem solving"])) nextSkills.push("Problem Solving");
+      }
+      if (c.key === "data") {
+        if (!hasAny(K, ["sql"])) nextSkills.push("SQL");
+        if (!hasAny(K, ["excel"])) nextSkills.push("Excel (Pivot/Charts)");
+        if (!hasAny(K, ["power bi","tableau"])) nextSkills.push("Power BI / Tableau");
+      }
+      if (c.key === "ai") {
+        if (!hasAny(K, ["python"])) nextSkills.push("Python");
+        if (!containsAny(S, ["math","statistics"])) nextSkills.push("Statistics");
+      }
+
+      return { ...c, score, reasons, nextSkills };
+    }).sort((a,b) => b.score - a.score);
+
+    return scored.slice(0, 3); // top 3
+  }
+
+  function renderResult(top3, raw) {
+    const [a,b,c] = top3;
+    const pills = (arr) => arr.map(x => `<span class="pill">${x}</span>`).join(" ");
+
+    return `
+      <h2>Your Top Career Matches</h2>
+      <p>Based on: <span class="pill">Interest: ${raw.interest}</span> <span class="pill">Strong Subject: ${raw.strength}</span> <span class="pill">Skills: ${raw.skill}</span></p>
+      <div class="hr"></div>
+
+      ${top3.map((x, idx) => `
+        <div class="card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); box-shadow: none; margin: 14px 0;">
+          <h3>${idx+1}) ${x.title} <span class="pill">Score: ${x.score}</span></h3>
+          <div class="small">Related roles: ${x.roles.join(", ")}</div>
+
+          <div class="hr"></div>
+          <div class="row" style="margin-bottom:10px;">
+            ${pills(x.tags)}
+          </div>
+
+          <p><strong>Why this fits you:</strong></p>
+          <ul class="list">
+            ${x.reasons.length ? x.reasons.map(r => `<li>${r}</li>`).join("") : `<li>General match based on your inputs.</li>`}
+          </ul>
+
+          <p style="margin-top:12px;"><strong>Roadmap (next steps):</strong></p>
+          <ul class="list">
+            ${x.roadmap.map(s => `<li>${s}</li>`).join("")}
+          </ul>
+
+          ${x.nextSkills.length ? `
+            <p style="margin-top:12px;"><strong>Skills to learn next:</strong></p>
+            <div class="row">${pills(x.nextSkills)}</div>
+          ` : ``}
+        </div>
+      `).join("")}
+
+      <div class="hr"></div>
+      <p class="small">Want “real AI”? Replace the scoring engine with OpenAI API calls (I can give you the exact JS + backend setup).</p>
+    `;
+  }
+
+  document.getElementById("careerForm").addEventListener("submit", function(e){
     e.preventDefault();
     const interest = this.interest.value;
     const strength = this.strength.value;
     const skill = this.skill.value;
 
-    // For demo: simple rule-based suggestion (replace with OpenAI API later)
-    let suggestion = `Based on your interest in ${interest}, strength in ${strength}, and skills in ${skill}, you can pursue: `;
+    const skills = splitSkills(skill);
+    const top3 = recommendCareers({interest, strength, skills});
 
-    if(interest.toLowerCase() === 'it') suggestion += 'Software Developer, Data Analyst, AI Engineer';
-    else if(interest.toLowerCase() === 'science') suggestion += 'Doctor, Lab Technician, Research Scientist';
-    else if(interest.toLowerCase() === 'management') suggestion += 'Marketing Manager, HR Officer, Business Analyst';
-    else suggestion += 'Explore multiple career paths based on your skills.';
+    const resultDiv = document.getElementById("careerResult");
+    resultDiv.style.display = "block";
+    resultDiv.innerHTML = renderResult(top3, {interest, strength, skill});
 
-    const resultDiv = document.getElementById('careerResult');
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = `<h3>${suggestion}</h3>`;
-});
+    // Smooth scroll into result
+    resultDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 </script>
-
 </body>
 </html>
