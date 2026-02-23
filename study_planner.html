@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPath AI - Study Planner</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="card">
+        <h2>AI Study Planner</h2>
+        <form id="plannerForm">
+            <input type="text" name="subject" placeholder="Subject Name" required>
+            <input type="number" name="marks" placeholder="Marks (0-100)" required>
+            <button type="submit">Analyze</button>
+        </form>
+
+        <div id="result" class="card" style="margin-top:20px; display:none;"></div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById('plannerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const marks = parseInt(this.marks.value);
+    let priority = '';
+    if(marks < 40) priority = "High Priority - Study 2 hrs/day";
+    else if(marks <= 60) priority = "Medium Priority - Study 1 hr/day";
+    else priority = "Low Priority - 30 min/day";
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<h3>${priority}</h3>`;
+});
+</script>
+
+</body>
+</html>

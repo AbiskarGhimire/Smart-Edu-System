@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPath AI - Career Guidance</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="card">
+        <h2>AI Career Guidance</h2>
+        <form id="careerForm">
+            <input type="text" name="interest" placeholder="Interest (IT, Science, Management)" required>
+            <input type="text" name="strength" placeholder="Strong Subject" required>
+            <input type="text" name="skill" placeholder="Skills" required>
+            <button type="submit">Generate AI Advice</button>
+        </form>
+
+        <div id="careerResult" class="card" style="margin-top:20px; display:none;"></div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById('careerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const interest = this.interest.value;
+    const strength = this.strength.value;
+    const skill = this.skill.value;
+
+    // For demo: simple rule-based suggestion (replace with OpenAI API later)
+    let suggestion = `Based on your interest in ${interest}, strength in ${strength}, and skills in ${skill}, you can pursue: `;
+
+    if(interest.toLowerCase() === 'it') suggestion += 'Software Developer, Data Analyst, AI Engineer';
+    else if(interest.toLowerCase() === 'science') suggestion += 'Doctor, Lab Technician, Research Scientist';
+    else if(interest.toLowerCase() === 'management') suggestion += 'Marketing Manager, HR Officer, Business Analyst';
+    else suggestion += 'Explore multiple career paths based on your skills.';
+
+    const resultDiv = document.getElementById('careerResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<h3>${suggestion}</h3>`;
+});
+</script>
+
+</body>
+</html>
